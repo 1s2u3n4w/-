@@ -46,7 +46,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-800">
 
-    <!-- Navigation / Header -->
+    <!-- Header -->
     <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 shadow-md">
         <div class="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between">
             <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('recommend')">
@@ -95,14 +95,13 @@
         <!-- ================= TAB 1: RECOMMENDATION VIEW ================= -->
         <section id="viewRecommend" class="space-y-6">
             
-            <!-- Input Card -->
             <div class="glass-card rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 space-y-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <span>오늘 당신의 마음과 상황을 들려주세요</span>
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                        Gemini AI가 당신의 이야기를 깊이 이해하고 **맞춤 성경 구절**을 써드립니다.
+                        Gemini AI가 당신의 이야기를 깊이 이해하고 **맞춤 성경 구절**을 추천해 드립니다.
                     </p>
                 </div>
 
@@ -110,7 +109,7 @@
                 <div>
                     <p class="text-xs text-slate-400 font-medium mb-1.5 flex items-center gap-1">
                         <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i>
-                        <span>자주 쓰는 고민 클릭하기:</span>
+                        <span>자주 쓰는 고민 예시:</span>
                     </p>
                     <div class="flex flex-wrap gap-2">
                         <button onclick="setPromptInput('새로운 도전과 업무 부담감으로 불안하고 마음이 짓눌립니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
@@ -223,7 +222,7 @@
 
         </section>
 
-        <!-- ================= TAB 2: USER HISTORY & FAVORITES VIEW ================= -->
+        <!-- ================= TAB 2: USER HISTORY ================= -->
         <section id="viewHistory" class="hidden space-y-4">
             
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -247,9 +246,7 @@
             </div>
 
             <!-- History Item List -->
-            <div id="historyList" class="space-y-3">
-                <!-- Dynamic Items -->
-            </div>
+            <div id="historyList" class="space-y-3"></div>
 
             <!-- Empty State -->
             <div id="emptyHistory" class="glass-card rounded-2xl p-12 text-center space-y-3">
@@ -280,7 +277,7 @@
                 <h3 class="text-lg font-bold text-slate-900">Google Gemini API 키 설정</h3>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed">
-                GitHub 등 공개 웹페이지에 API 키를 직접 등록하면 보안 차단이 발생합니다. 발급받으신 Gemini API 키를 아래에 입력해 주세요. (입력한 키는 본인 브라우저에만 안전하게 저장됩니다)
+                발급받으신 Gemini API 키를 입력해 주세요. 입력한 키는 서버에 저장되지 않고 <strong>본인 브라우저의 내부 저장소(`localStorage`)에만 안전하게 보관</strong>됩니다.
             </p>
             <div>
                 <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none">
@@ -331,7 +328,6 @@
     </div>
 
     <script>
-        // Global App State
         let historyData = [];
         let currentTab = 'recommend';
         let currentRecommendation = null;
@@ -347,7 +343,7 @@
         };
 
         function getSavedApiKey() {
-            return localStorage.getItem('gemini_api_key') || '';
+            return (localStorage.getItem('gemini_api_key') || '').trim();
         }
 
         function checkApiKeyStatus() {
@@ -425,7 +421,7 @@
         async function requestRecommendation() {
             const apiKey = getSavedApiKey();
             if (!apiKey) {
-                showToast("AI 사용을 위해 API 키를 설정해 주세요.", "warning");
+                showToast("AI 사용을 위해 API 키를 먼저 설정해 주세요.", "warning");
                 openApiKeyModal();
                 return;
             }
@@ -484,15 +480,22 @@
             } catch (err) {
                 console.error("Gemini API 호출 에러:", err);
                 loadingCard.classList.add('hidden');
-                showToast("API 키가 올바르지 않거나 오류가 발생했습니다.", "warning");
-                openApiKeyModal();
+                
+                // API 키 유효성 문제인 경우에만 모달 오픈
+                if (err.message && err.message.includes("API_KEY_INVALID")) {
+                    showToast("API 키가 올바르지 않습니다. 키를 다시 확인해 주세요.", "warning");
+                    openApiKeyModal();
+                } else {
+                    showToast("묵상 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "warning");
+                }
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
         }
 
         async function callGeminiAPI(situation, apiKey) {
-            const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash'];
+            // 안정적인 공식 Gemini 모델 순서
+            const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
             let lastError = null;
 
             const systemPrompt = `당신은 사용자의 상황과 감정을 깊이 이해하고 성경 전체(66권) 중 가장 적절한 성경 말씀과 깊이 있는 맞춤형 묵상(Devotional) 본문을 작성하는 신학·상담 에디터입니다.
@@ -514,7 +517,7 @@
                 systemInstruction: { parts: [{ text: systemPrompt }] },
                 generationConfig: {
                     responseMimeType: "application/json",
-                    temperature: 0.8
+                    temperature: 0.7
                 }
             };
 
@@ -530,8 +533,17 @@
                     if (!response.ok) {
                         const errData = await response.json().catch(() => ({}));
                         const errMsg = errData.error?.message || response.statusText;
+
+                        // API 키가 유효하지 않을 때의 응답 구분
+                        if (response.status === 400 && (errMsg.includes("API key") || errMsg.includes("INVALID_ARGUMENT"))) {
+                            throw new Error("API_KEY_INVALID");
+                        }
+                        if (response.status === 403 || response.status === 401) {
+                            throw new Error("API_KEY_INVALID");
+                        }
+
                         lastError = new Error(`HTTP ${response.status}: ${errMsg}`);
-                        continue;
+                        continue; // 다음 모델 시도
                     }
 
                     const data = await response.json();
@@ -541,11 +553,12 @@
                     const cleanJsonStr = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
                     return JSON.parse(cleanJsonStr);
                 } catch (err) {
+                    if (err.message === "API_KEY_INVALID") throw err;
                     lastError = err;
                 }
             }
 
-            throw lastError || new Error("AI 묵상을 가져오는 중 문제가 발생했습니다.");
+            throw lastError || new Error("AI 묵상을 생성하지 못했습니다.");
         }
 
         function toggleAudioReading() {
