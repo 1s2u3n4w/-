@@ -60,9 +60,9 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <button onclick="openApiKeyModal()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20 text-xs font-medium transition">
+                <button onclick="openApiKeyModal()" id="apiKeyBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 text-xs font-medium transition cursor-pointer">
                     <i data-lucide="key" class="w-3.5 h-3.5"></i>
-                    <span id="apiKeyStatusText">API 키 설정</span>
+                    <span id="apiKeyBadgeText">API 키 설정</span>
                 </button>
             </div>
         </div>
@@ -102,7 +102,7 @@
                         <span>오늘 당신의 마음과 상황을 들려주세요</span>
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                        Gemini AI가 당신의 이야기를 깊이 이해하고 맞춤 성경 구절과 묵상을 써드립니다.
+                        Gemini AI가 당신의 이야기를 깊이 이해하고 **맞춤 성경 구절**을 써드립니다.
                     </p>
                 </div>
 
@@ -269,6 +269,33 @@
 
     </main>
 
+    <!-- Modal: API Key Settings -->
+    <div id="apiKeyModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative border border-slate-200">
+            <button onclick="closeApiKeyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-2 text-indigo-600">
+                <i data-lucide="key" class="w-6 h-6"></i>
+                <h3 class="text-lg font-bold text-slate-900">Google Gemini API 키 설정</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                GitHub 등 공개 웹페이지에 API 키를 직접 등록하면 보안 차단이 발생합니다. 발급받으신 Gemini API 키를 아래에 입력해 주세요. (입력한 키는 본인 브라우저에만 안전하게 저장됩니다)
+            </p>
+            <div>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full p-3 rounded-xl border border-slate-300 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-xs text-indigo-600 hover:underline font-medium">
+                    👉 Google AI Studio에서 무료 API 키 발급받기
+                </a>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="saveApiKey()" class="w-full py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-xl hover:bg-indigo-700 transition">
+                    저장하기
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Detail View Modal for History -->
     <div id="detailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 text-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 space-y-5 border border-slate-700 relative max-h-[90vh] overflow-y-auto">
@@ -303,36 +330,6 @@
         </div>
     </div>
 
-    <!-- API Key Input Modal -->
-    <div id="apiKeyModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white text-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 border border-slate-200 relative">
-            <button onclick="closeApiKeyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                    <i data-lucide="key" class="w-4 h-4"></i>
-                </div>
-                <h3 class="text-base font-bold text-slate-900">Gemini API 키 설정</h3>
-            </div>
-
-            <p class="text-xs text-slate-600 leading-relaxed">
-                Google AI Studio에서 발급받은 무료 API 키를 입력해 주세요. 키는 서버에 저장되지 않고 사용자 브라우저에만 안전하게 보관됩니다.
-            </p>
-
-            <div>
-                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." 
-                    class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 font-mono">
-            </div>
-
-            <div class="flex items-center justify-end gap-2 pt-2">
-                <button onclick="closeApiKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">취소</button>
-                <button onclick="saveApiKey()" class="px-4 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">저장하기</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Global App State
         let historyData = [];
@@ -349,19 +346,27 @@
             checkApiKeyStatus();
         };
 
+        function getSavedApiKey() {
+            return localStorage.getItem('gemini_api_key') || '';
+        }
+
         function checkApiKeyStatus() {
-            const key = localStorage.getItem('gemini_api_key');
-            const statusText = document.getElementById('apiKeyStatusText');
-            if (key) {
-                if (statusText) statusText.innerText = "API 키 등록됨";
+            const apiKey = getSavedApiKey();
+            const badge = document.getElementById('apiKeyBadge');
+            const badgeText = document.getElementById('apiKeyBadgeText');
+            
+            if (apiKey) {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-medium transition cursor-pointer";
+                badgeText.innerText = "API 키 등록됨";
             } else {
-                if (statusText) statusText.innerText = "API 키 설정 필요";
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 text-xs font-medium transition cursor-pointer";
+                badgeText.innerText = "API 키 필요";
             }
         }
 
         function openApiKeyModal() {
-            const storedKey = localStorage.getItem('gemini_api_key') || '';
-            document.getElementById('apiKeyInput').value = storedKey;
+            const input = document.getElementById('apiKeyInput');
+            input.value = getSavedApiKey();
             document.getElementById('apiKeyModal').classList.remove('hidden');
         }
 
@@ -370,15 +375,16 @@
         }
 
         function saveApiKey() {
-            const inputVal = document.getElementById('apiKeyInput').value.trim();
-            if (!inputVal) {
-                showToast("API 키를 입력해주세요.", "warning");
+            const input = document.getElementById('apiKeyInput');
+            const key = input ? input.value.trim() : '';
+            if (!key) {
+                showToast("API 키를 입력해 주세요.", "warning");
                 return;
             }
-            localStorage.setItem('gemini_api_key', inputVal);
+            localStorage.setItem('gemini_api_key', key);
             checkApiKeyStatus();
             closeApiKeyModal();
-            showToast("API 키가 저장되었습니다.", "success");
+            showToast("API 키가 저장되었습니다!", "success");
         }
 
         function switchTab(tab) {
@@ -417,9 +423,9 @@
         }
 
         async function requestRecommendation() {
-            const apiKey = localStorage.getItem('gemini_api_key');
+            const apiKey = getSavedApiKey();
             if (!apiKey) {
-                showToast("서비스 이용을 위해 Gemini API 키를 먼저 설정해주세요.", "warning");
+                showToast("AI 사용을 위해 API 키를 설정해 주세요.", "warning");
                 openApiKeyModal();
                 return;
             }
@@ -473,20 +479,20 @@
                 lucide.createIcons();
 
                 resultCard.scrollIntoView({ behavior: 'smooth' });
-                showToast("AI 맞춤 묵상이 완공되었습니다!", "success");
+                showToast("AI 맞춤 묵상이 완성되었습니다!", "success");
 
             } catch (err) {
                 console.error("Gemini API 호출 에러:", err);
                 loadingCard.classList.add('hidden');
-                showToast("AI 묵상 생성 중 오류가 발생했습니다: " + (err.message || "API 키를 확인해 주세요."), "warning");
+                showToast("API 키가 올바르지 않거나 오류가 발생했습니다.", "warning");
+                openApiKeyModal();
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
         }
 
         async function callGeminiAPI(situation, apiKey) {
-            // 표준 제공 API 모델로 최적화
-            const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+            const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash'];
             let lastError = null;
 
             const systemPrompt = `당신은 사용자의 상황과 감정을 깊이 이해하고 성경 전체(66권) 중 가장 적절한 성경 말씀과 깊이 있는 맞춤형 묵상(Devotional) 본문을 작성하는 신학·상담 에디터입니다.
@@ -525,10 +531,7 @@
                         const errData = await response.json().catch(() => ({}));
                         const errMsg = errData.error?.message || response.statusText;
                         lastError = new Error(`HTTP ${response.status}: ${errMsg}`);
-                        if (response.status === 404 || response.status === 400) {
-                            continue;
-                        }
-                        throw lastError;
+                        continue;
                     }
 
                     const data = await response.json();
