@@ -299,12 +299,12 @@
                 resultCard.classList.remove('hidden');
                 lucide.createIcons();
                 resultCard.scrollIntoView({ behavior: 'smooth' });
-                showToast("AI 맞춤 묵상이 완성되었습니다!", "success");
+                showToast("AI 맞춤 말씀을 찾았습니다!", "success");
 
             } catch (err) {
                 console.error("오류 발생:", err);
                 loadingCard.classList.add('hidden');
-                showToast("묵상 생성 중 오류가 발생했습니다.", "warning");
+                showToast("말씀 찾는 중 오류가 발생했습니다.", "warning");
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
