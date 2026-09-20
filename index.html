@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마음 성경 AI - 실시간 맞춤 묵상</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -57,12 +58,13 @@
                     <p class="text-[11px] text-indigo-300 tracking-wider font-medium">실시간 맞춤 묵상</p>
                 </div>
             </div>
-            <!-- API Key Settings Button -->
-            <button onclick="openApiKeyModal()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 flex items-center gap-1.5 transition">
-                <i data-lucide="key" class="w-3.5 h-3.5"></i>
-                <span id="apiKeyBtnText">API 키 설정</span>
-                <span id="apiKeyStatusDot" class="w-2 h-2 rounded-full bg-rose-500"></span>
-            </button>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="openApiKeyModal()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20 text-xs font-medium transition">
+                    <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                    <span id="apiKeyStatusText">API 키 설정</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -93,25 +95,14 @@
         <!-- ================= TAB 1: RECOMMENDATION VIEW ================= -->
         <section id="viewRecommend" class="space-y-6">
             
-            <!-- API Key Missing Alert Banner -->
-            <div id="apiKeyBanner" class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-3 text-amber-900 text-xs sm:text-sm">
-                <div class="flex items-center gap-2.5">
-                    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0"></i>
-                    <span>AI 묵상을 생성하려면 <strong>Gemini API 키</strong> 설정이 필요합니다.</span>
-                </div>
-                <button onclick="openApiKeyModal()" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold transition shrink-0">
-                    지금 키 입력
-                </button>
-            </div>
-
             <!-- Input Card -->
             <div class="glass-card rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 space-y-4">
                 <div>
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <span>오늘 당신의 상황과 마음 고백을 작성하세요</span>
+                        <span>오늘 당신의 마음과 상황을 들려주세요</span>
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                        Gemini AI가 당신의 이야기를 깊이 파악하여 **맞춤 성경 구절과 깊은 묵상 본문**을 선사합니다.
+                        Gemini AI가 당신의 이야기를 깊이 이해하고 맞춤 성경 구절과 묵상을 써드립니다.
                     </p>
                 </div>
 
@@ -119,17 +110,20 @@
                 <div>
                     <p class="text-xs text-slate-400 font-medium mb-1.5 flex items-center gap-1">
                         <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i>
-                        <span>클릭하여 질문 예시 적용:</span>
+                        <span>자주 쓰는 고민 클릭하기:</span>
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="setPromptInput('새로운 환경과 업무 적응 문제로 불안하고 내 한계를 느낍니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                        <button onclick="setPromptInput('새로운 도전과 업무 부담감으로 불안하고 마음이 짓눌립니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
                             💼 업무 부담과 불안
                         </button>
-                        <button onclick="setPromptInput('소중한 사람과의 오해로 마음이 무겁고 어찌해야 할지 모르겠습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
-                            💔 대인 관계의 오해와 아픔
+                        <button onclick="setPromptInput('소중한 사람과의 오해로 마음이 아프고 관계 회복에 지혜가 필요합니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            💔 대인 관계와 오해
                         </button>
-                        <button onclick="setPromptInput('반복되는 삶 속에 마음이 지쳐있습니다. 진정한 평안과 안식이 필요해요.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                        <button onclick="setPromptInput('지친 일상 속에서 진정한 마음의 평안과 안식을 얻고 싶습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
                             🌿 마음의 지침과 안식
+                        </button>
+                        <button onclick="setPromptInput('중요한 결정을 내려야 하는데 주님의 지혜와 확신이 필요합니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            🧭 중요한 결정과 지혜
                         </button>
                     </div>
                 </div>
@@ -137,11 +131,655 @@
                 <!-- Textarea -->
                 <div class="relative">
                     <textarea id="situationInput" rows="4" 
-                        placeholder="예: 중요한 결정을 앞두고 주저하고 있습니다. 저에게 지혜와 용기를 주는 말씀을 내려주세요."
+                        placeholder="예: 결정을 앞두고 두려운 마음이 듭니다. 주님이 주시는 용기와 지혜의 말씀을 듣고 싶어요."
                         class="w-full p-4 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none resize-none text-slate-800 text-sm leading-relaxed transition shadow-inner"
                     ></textarea>
                 </div>
 
                 <!-- Action Button -->
                 <div class="flex items-center justify-end">
-                    <button id="submitBtn" onclick="requestRecommendation()" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 transition transform active:
+                    <button id="submitBtn" onclick="requestRecommendation()" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 transition transform active:scale-[0.98]">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span>AI 실시간 묵상 생성하기</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner Card -->
+            <div id="loadingCard" class="hidden glass-card rounded-2xl p-8 text-center space-y-4 border border-indigo-100">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-indigo-50 text-indigo-600 mb-1">
+                    <i data-lucide="loader-2" class="w-7 h-7 animate-spin"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-800">AI가 말씀을 적어내려가고 있습니다</h3>
+                    <p class="text-xs text-slate-500 mt-1">상황에 꼭 맞는 말씀을 찾는 중...</p>
+                </div>
+            </div>
+
+            <!-- Result Card -->
+            <div id="resultCard" class="hidden space-y-5">
+                <div class="bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-slate-800 space-y-6">
+                    
+                    <div class="absolute -top-12 -right-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <!-- Header Bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-4">
+                        <span id="resTag" class="px-3 py-1 rounded-full text-xs font-semibold bg-amberGold-500/20 text-amberGold-100 border border-amberGold-500/30 flex items-center gap-1">
+                            <i data-lucide="tag" class="w-3 h-3"></i> #AI_맞춤묵상
+                        </span>
+
+                        <div class="flex items-center gap-2">
+                            <!-- Audio Read Button -->
+                            <button id="audioPlayBtn" onclick="toggleAudioReading()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition text-xs font-medium flex items-center gap-1.5 shadow">
+                                <i id="audioIcon" data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                                <span id="audioBtnText">오디오 낭독</span>
+                            </button>
+
+                            <!-- Copy Button -->
+                            <button onclick="copyVerseToClipboard()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition text-xs flex items-center gap-1" title="전체 복사">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>복사</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Meditation Title -->
+                    <div>
+                        <p class="text-xs text-indigo-300 uppercase tracking-widest font-semibold mb-1">오늘의 말씀 묵상</p>
+                        <h3 id="resTitle" class="text-xl sm:text-2xl font-bold text-amber-200 font-batang leading-tight">
+                            묵상 제목
+                        </h3>
+                    </div>
+
+                    <!-- Scripture Verse Section -->
+                    <div class="bg-white/5 rounded-xl p-5 border border-white/10 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5 text-amber-400"></i>
+                                본문 말씀
+                            </span>
+                            <span id="resVerseRef" class="text-xs sm:text-sm font-semibold text-amber-300">
+                                — 성경 장절
+                            </span>
+                        </div>
+                        <blockquote class="text-base sm:text-lg font-serif leading-relaxed text-amber-50 border-l-2 border-amber-400 pl-3.5">
+                            "<span id="resVerseText">성경 구절 본문</span>"
+                        </blockquote>
+                    </div>
+
+                    <!-- Meditation Body -->
+                    <div class="space-y-3 pt-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                            <i data-lucide="feather" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            말씀 깊이 묵상하기
+                        </h4>
+                        <div id="resReflectionBody" class="text-sm sm:text-base text-slate-200 leading-relaxed space-y-3 font-light">
+                            묵상 본문 내용
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= TAB 2: USER HISTORY & FAVORITES VIEW ================= -->
+        <section id="viewHistory" class="hidden space-y-4">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-base font-bold text-slate-900">내 묵상 보관함</h2>
+                    <p class="text-xs text-slate-500">지나온 말씀과 묵상의 기록들입니다.</p>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button id="favoriteFilterBtn" onclick="toggleFavoriteFilter()" class="px-3 py-1.5 text-xs rounded-lg border border-slate-200 text-slate-600 hover:bg-amber-50 hover:text-amber-700 flex items-center gap-1 transition">
+                        <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500"></i>
+                        <span>즐겨찾기만</span>
+                    </button>
+
+                    <div class="relative min-w-[160px]">
+                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="historySearch" oninput="filterHistory()" placeholder="제목 또는 고민 검색..." 
+                            class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Item List -->
+            <div id="historyList" class="space-y-3">
+                <!-- Dynamic Items -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyHistory" class="glass-card rounded-2xl p-12 text-center space-y-3">
+                <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                    <i data-lucide="inbox" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-slate-700">저장된 묵상 기록이 없습니다</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                    마음속 이야기를 적고 AI 묵상을 생성하면 이곳에 자동으로 보관됩니다.
+                </p>
+                <button onclick="switchTab('recommend')" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
+                    묵상 작성하러 가기
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Detail View Modal for History -->
+    <div id="detailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 text-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 space-y-5 border border-slate-700 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-2 border-b border-white/10 pb-3">
+                <span id="detailTag" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amberGold-500/20 text-amberGold-100 border border-amberGold-500/30">#말씀</span>
+                <span id="detailDate" class="text-xs text-slate-400">날짜</span>
+            </div>
+
+            <div>
+                <p class="text-xs text-indigo-300 font-semibold mb-1">오늘의 말씀 묵상</p>
+                <h3 id="detailTitle" class="text-xl font-bold text-amber-200 font-batang">묵상 제목</h3>
+            </div>
+
+            <div class="bg-white/5 rounded-xl p-3 border border-white/10 text-xs text-slate-300 space-y-1">
+                <p class="font-semibold text-indigo-300">내 당시 마음 고백:</p>
+                <p id="detailSituation" class="italic">질문 내용</p>
+            </div>
+
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 space-y-2">
+                <span id="detailVerseRef" class="text-xs font-semibold text-amber-300">— 성경 장절</span>
+                <p id="detailVerseText" class="text-base font-serif italic text-amber-50">"성경 본문"</p>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <h4 class="text-xs font-bold text-indigo-300">말씀 깊이 묵상하기</h4>
+                <div id="detailReflection" class="text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2">묵상 본문</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key Input Modal -->
+    <div id="apiKeyModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white text-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 border border-slate-200 relative">
+            <button onclick="closeApiKeyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                    <i data-lucide="key" class="w-4 h-4"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Gemini API 키 설정</h3>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Google AI Studio에서 발급받은 무료 API 키를 입력해 주세요. 키는 서버에 저장되지 않고 사용자 브라우저에만 안전하게 보관됩니다.
+            </p>
+
+            <div>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." 
+                    class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 font-mono">
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">취소</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global App State
+        let historyData = [];
+        let currentTab = 'recommend';
+        let currentRecommendation = null;
+        let showingFavoritesOnly = false;
+        let isAudioPlaying = false;
+        let audioUtterance = null;
+
+        window.onload = function() {
+            lucide.createIcons();
+            loadHistoryFromStorage();
+            renderHistoryList();
+            checkApiKeyStatus();
+        };
+
+        function checkApiKeyStatus() {
+            const key = localStorage.getItem('gemini_api_key');
+            const statusText = document.getElementById('apiKeyStatusText');
+            if (key) {
+                if (statusText) statusText.innerText = "API 키 등록됨";
+            } else {
+                if (statusText) statusText.innerText = "API 키 설정 필요";
+            }
+        }
+
+        function openApiKeyModal() {
+            const storedKey = localStorage.getItem('gemini_api_key') || '';
+            document.getElementById('apiKeyInput').value = storedKey;
+            document.getElementById('apiKeyModal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const inputVal = document.getElementById('apiKeyInput').value.trim();
+            if (!inputVal) {
+                showToast("API 키를 입력해주세요.", "warning");
+                return;
+            }
+            localStorage.setItem('gemini_api_key', inputVal);
+            checkApiKeyStatus();
+            closeApiKeyModal();
+            showToast("API 키가 저장되었습니다.", "success");
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const viewRecommend = document.getElementById('viewRecommend');
+            const viewHistory = document.getElementById('viewHistory');
+
+            const tabBtnRecommend = document.getElementById('tabBtnRecommend');
+            const tabBtnHistory = document.getElementById('tabBtnHistory');
+
+            viewRecommend.classList.add('hidden');
+            viewHistory.classList.add('hidden');
+
+            const activeStyle = "flex-1 py-3 px-4 text-xs sm:text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 flex items-center justify-center gap-1.5 transition";
+            const inactiveStyle = "flex-1 py-3 px-4 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5 transition";
+
+            tabBtnRecommend.className = inactiveStyle;
+            tabBtnHistory.className = inactiveStyle;
+
+            if (tab === 'recommend') {
+                viewRecommend.classList.remove('hidden');
+                tabBtnRecommend.className = activeStyle;
+            } else if (tab === 'history') {
+                viewHistory.classList.remove('hidden');
+                tabBtnHistory.className = activeStyle;
+                renderHistoryList();
+            }
+        }
+
+        function setPromptInput(text) {
+            const input = document.getElementById('situationInput');
+            if (input) {
+                input.value = text;
+                input.focus();
+            }
+        }
+
+        async function requestRecommendation() {
+            const apiKey = localStorage.getItem('gemini_api_key');
+            if (!apiKey) {
+                showToast("서비스 이용을 위해 Gemini API 키를 먼저 설정해주세요.", "warning");
+                openApiKeyModal();
+                return;
+            }
+
+            const situationInput = document.getElementById('situationInput');
+            const situation = situationInput ? situationInput.value.trim() : '';
+            
+            if (!situation) {
+                showToast("오늘의 상황이나 고민을 작성해 주세요.", "warning");
+                return;
+            }
+
+            const loadingCard = document.getElementById('loadingCard');
+            const resultCard = document.getElementById('resultCard');
+            const submitBtn = document.getElementById('submitBtn');
+
+            loadingCard.classList.remove('hidden');
+            resultCard.classList.add('hidden');
+            if (submitBtn) submitBtn.disabled = true;
+
+            try {
+                const data = await callGeminiAPI(situation, apiKey);
+                currentRecommendation = data;
+
+                // Render Result UI
+                const resTag = document.getElementById('resTag');
+                if (resTag) resTag.innerHTML = `<i data-lucide="tag" class="w-3 h-3"></i> ${data.theme_tag || '#AI_맞춤묵상'}`;
+                
+                document.getElementById('resTitle').innerText = data.title || '오늘의 묵상';
+                document.getElementById('resVerseRef').innerText = `— ${data.verse_reference}`;
+                document.getElementById('resVerseText').innerText = data.verse_text;
+
+                const reflectionContainer = document.getElementById('resReflectionBody');
+                const paragraphs = (data.reflection_body || '').split('\n').filter(p => p.trim() !== '');
+                reflectionContainer.innerHTML = paragraphs.map(p => `<p class="leading-relaxed">${p}</p>`).join('');
+
+                // Save History
+                saveHistoryItem({
+                    situation: situation,
+                    verse_reference: data.verse_reference,
+                    verse_text: data.verse_text,
+                    theme_tag: data.theme_tag,
+                    title: data.title,
+                    reflection_body: data.reflection_body,
+                    date: new Date().toISOString(),
+                    isFavorite: false
+                });
+
+                loadingCard.classList.add('hidden');
+                resultCard.classList.remove('hidden');
+                lucide.createIcons();
+
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+                showToast("AI 맞춤 묵상이 완공되었습니다!", "success");
+
+            } catch (err) {
+                console.error("Gemini API 호출 에러:", err);
+                loadingCard.classList.add('hidden');
+                showToast("AI 묵상 생성 중 오류가 발생했습니다: " + (err.message || "API 키를 확인해 주세요."), "warning");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        }
+
+        async function callGeminiAPI(situation, apiKey) {
+            // 표준 제공 API 모델로 최적화
+            const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+            let lastError = null;
+
+            const systemPrompt = `당신은 사용자의 상황과 감정을 깊이 이해하고 성경 전체(66권) 중 가장 적절한 성경 말씀과 깊이 있는 맞춤형 묵상(Devotional) 본문을 작성하는 신학·상담 에디터입니다.
+
+[요청]
+사용자의 상황에 가장 알맞은 성경 구절을 선정하고, 묵상 제목 및 말씀의 깊은 강해와 삶과의 연결을 담은 묵상 본문을 작성하세요.
+
+[JSON 응답 형식을 엄격히 준수하세요]
+{
+  "verse_reference": "성경 책 장:절 (예: 이사야 41:10)",
+  "verse_text": "성경 구절 본문",
+  "theme_tag": "#상황_키워드_태그",
+  "title": "묵상 제목",
+  "reflection_body": "성경 구절의 핵심 의미와 사용자의 삶 상황을 진솔하게 연결하여 풀어낸 깊은 묵상 본문 (2~3개 단락)"
+}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: `사용자의 상황/고민: "${situation}"` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    temperature: 0.8
+                }
+            };
+
+            for (const model of modelsToTry) {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        const errMsg = errData.error?.message || response.statusText;
+                        lastError = new Error(`HTTP ${response.status}: ${errMsg}`);
+                        if (response.status === 404 || response.status === 400) {
+                            continue;
+                        }
+                        throw lastError;
+                    }
+
+                    const data = await response.json();
+                    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!rawText) throw new Error("응답 결과가 비어있습니다.");
+
+                    const cleanJsonStr = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    return JSON.parse(cleanJsonStr);
+                } catch (err) {
+                    lastError = err;
+                }
+            }
+
+            throw lastError || new Error("AI 묵상을 가져오는 중 문제가 발생했습니다.");
+        }
+
+        function toggleAudioReading() {
+            if (!currentRecommendation) return;
+
+            if (isAudioPlaying) {
+                window.speechSynthesis.cancel();
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
+                return;
+            }
+
+            if (!('speechSynthesis' in window)) {
+                showToast("이 브라우저는 음성 낭독을 지원하지 않습니다.", "warning");
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const textToRead = `${currentRecommendation.title}. 본문 말씀. ${currentRecommendation.verse_reference}. ${currentRecommendation.verse_text}. 말씀 묵상. ${currentRecommendation.reflection_body}`;
+
+            audioUtterance = new SpeechSynthesisUtterance(textToRead);
+            audioUtterance.lang = 'ko-KR';
+            audioUtterance.rate = 0.9;
+
+            audioUtterance.onend = function() {
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
+            };
+
+            audioUtterance.onerror = function() {
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
+            };
+
+            isAudioPlaying = true;
+            updateAudioButtonUI(true);
+            window.speechSynthesis.speak(audioUtterance);
+        }
+
+        function updateAudioButtonUI(playing) {
+            const btnText = document.getElementById('audioBtnText');
+            const icon = document.getElementById('audioIcon');
+            if (playing) {
+                if (btnText) btnText.innerText = "낭독 정지";
+                if (icon) icon.setAttribute("data-lucide", "square");
+            } else {
+                if (btnText) btnText.innerText = "오디오 낭독";
+                if (icon) icon.setAttribute("data-lucide", "volume-2");
+            }
+            lucide.createIcons();
+        }
+
+        function saveHistoryItem(item) {
+            const userKey = `bible_app_history`;
+            let currentHistory = JSON.parse(localStorage.getItem(userKey) || '[]');
+            const newItem = { id: 'hist_' + Date.now(), ...item };
+            currentHistory.unshift(newItem);
+            localStorage.setItem(userKey, JSON.stringify(currentHistory));
+            historyData = currentHistory;
+            updateHistoryBadge();
+        }
+
+        function loadHistoryFromStorage() {
+            const userKey = `bible_app_history`;
+            historyData = JSON.parse(localStorage.getItem(userKey) || '[]');
+            updateHistoryBadge();
+        }
+
+        function updateHistoryBadge() {
+            const badge = document.getElementById('historyBadge');
+            if (historyData.length > 0) {
+                badge.innerText = historyData.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleFavorite(id, event) {
+            event.stopPropagation();
+            const userKey = `bible_app_history`;
+            historyData = historyData.map(item => {
+                if (item.id === id) {
+                    return { ...item, isFavorite: !item.isFavorite };
+                }
+                return item;
+            });
+            localStorage.setItem(userKey, JSON.stringify(historyData));
+            renderHistoryList();
+            showToast("즐겨찾기가 변경되었습니다.", "success");
+        }
+
+        function deleteHistoryItem(id, event) {
+            event.stopPropagation();
+            const userKey = `bible_app_history`;
+            historyData = historyData.filter(item => item.id !== id);
+            localStorage.setItem(userKey, JSON.stringify(historyData));
+            updateHistoryBadge();
+            renderHistoryList();
+            showToast("기록이 삭제되었습니다.", "info");
+        }
+
+        function toggleFavoriteFilter() {
+            showingFavoritesOnly = !showingFavoritesOnly;
+            const btn = document.getElementById('favoriteFilterBtn');
+            if (showingFavoritesOnly) {
+                btn.className = "px-3 py-1.5 text-xs rounded-lg bg-amber-500 text-white font-semibold flex items-center gap-1 transition shadow-sm";
+            } else {
+                btn.className = "px-3 py-1.5 text-xs rounded-lg border border-slate-200 text-slate-600 hover:bg-amber-50 hover:text-amber-700 flex items-center gap-1 transition";
+            }
+            renderHistoryList();
+        }
+
+        function filterHistory() {
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const listEl = document.getElementById('historyList');
+            const emptyEl = document.getElementById('emptyHistory');
+            const searchInput = document.getElementById('historySearch');
+            const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            let filtered = historyData.filter(item => {
+                if (showingFavoritesOnly && !item.isFavorite) return false;
+                if (query) {
+                    const titleMatch = (item.title || '').toLowerCase().includes(query);
+                    const sitMatch = (item.situation || '').toLowerCase().includes(query);
+                    const verseMatch = (item.verse_reference || '').toLowerCase().includes(query);
+                    return titleMatch || sitMatch || verseMatch;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            listEl.innerHTML = filtered.map(item => {
+                const dateStr = new Date(item.date).toLocaleDateString('ko-KR', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+                const favClass = item.isFavorite ? "text-amber-500 fill-amber-500" : "text-slate-400 hover:text-amber-500";
+                
+                return `
+                    <div onclick="openDetailModal('${item.id}')" class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:border-indigo-300 transition cursor-pointer flex items-start justify-between gap-3 group">
+                        <div class="space-y-1.5 flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-600 border border-indigo-100">${item.theme_tag || '#말씀'}</span>
+                                <span class="text-[11px] text-slate-400">${dateStr}</span>
+                            </div>
+                            <h4 class="text-sm font-bold text-slate-800 truncate group-hover:text-indigo-600 transition">${item.title}</h4>
+                            <p class="text-xs text-slate-500 truncate">${item.verse_reference} — "${item.verse_text}"</p>
+                        </div>
+                        <div class="flex items-center gap-1.5 pt-1">
+                            <button onclick="toggleFavorite('${item.id}', event)" class="p-1.5 rounded-lg hover:bg-slate-100 transition ${favClass}" title="즐겨찾기">
+                                <i data-lucide="star" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteHistoryItem('${item.id}', event)" class="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition" title="삭제">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function openDetailModal(id) {
+            const item = historyData.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('detailTag').innerText = item.theme_tag || '#말씀';
+            document.getElementById('detailDate').innerText = new Date(item.date).toLocaleDateString('ko-KR', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('detailTitle').innerText = item.title;
+            document.getElementById('detailSituation').innerText = `"${item.situation}"`;
+            document.getElementById('detailVerseRef').innerText = `— ${item.verse_reference}`;
+            document.getElementById('detailVerseText').innerText = item.verse_text;
+
+            const paragraphs = (item.reflection_body || '').split('\n').filter(p => p.trim() !== '');
+            document.getElementById('detailReflection').innerHTML = paragraphs.map(p => `<p class="leading-relaxed">${p}</p>`).join('');
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function copyVerseToClipboard() {
+            if (!currentRecommendation) return;
+            const textToCopy = `[${currentRecommendation.title}]\n${currentRecommendation.verse_reference}\n"${currentRecommendation.verse_text}"\n\n${currentRecommendation.reflection_body}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast("클립보드에 복사되었습니다.", "success");
+            }).catch(() => {
+                showToast("복사에 실패했습니다.", "warning");
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            if (!toast || !toastMsg) return;
+
+            toastMsg.innerText = message;
+
+            if (type === 'success') {
+                toastIcon.setAttribute('data-lucide', 'check-circle');
+                toastIcon.className = "w-5 h-5 text-emerald-400";
+            } else if (type === 'warning') {
+                toastIcon.setAttribute('data-lucide', 'alert-circle');
+                toastIcon.className = "w-5 h-5 text-amber-400";
+            } else {
+                toastIcon.setAttribute('data-lucide', 'info');
+                toastIcon.className = "w-5 h-5 text-indigo-400";
+            }
+
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
