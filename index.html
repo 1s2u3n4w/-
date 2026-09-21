@@ -88,7 +88,7 @@
                         <span>오늘 당신의 마음과 상황을 들려주세요</span>
                     </h2>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1">
-                        Gemini AI가 당신의 이야기를 깊이 이해하고 **맞춤 성경 구절**을 추천해 드립니다.
+                        Gemini AI가 당신의 이야기를 깊이 이해하고 <strong class="text-indigo-600 font-semibold">맞춤 성경 구절</strong>을 추천해 드립니다.
                     </p>
                 </div>
 
@@ -191,10 +191,16 @@
                     <h2 class="text-base font-bold text-slate-900">내 말씀 보관함</h2>
                     <p class="text-xs text-slate-500">지나온 말씀과 묵상의 기록들입니다.</p>
                 </div>
+                <button onclick="clearAllHistory()" class="self-start sm:self-auto px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200 transition flex items-center gap-1">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>보관함 비우기</span>
+                </button>
             </div>
             <div id="historyList" class="space-y-3"></div>
             <div id="emptyHistory" class="glass-card rounded-2xl p-12 text-center space-y-3">
+                <i data-lucide="bookmark-x" class="w-10 h-10 text-slate-300 mx-auto"></i>
                 <h3 class="text-sm font-bold text-slate-700">저장된 묵상 기록이 없습니다</h3>
+                <p class="text-xs text-slate-400">말씀 찾기를 통해 새로운 묵상을 시작해 보세요.</p>
             </div>
         </section>
     </main>
@@ -212,6 +218,13 @@
         };
 
         function switchTab(tab) {
+            // Stop TTS reading if user switches tab
+            if (isAudioPlaying) {
+                window.speechSynthesis.cancel();
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
+            }
+
             const viewRecommend = document.getElementById('viewRecommend');
             const viewHistory = document.getElementById('viewHistory');
             const tabBtnRecommend = document.getElementById('tabBtnRecommend');
@@ -242,6 +255,66 @@
             }
         }
 
+        /**
+         * 숫자를 한글 한자어 수사로 변환하는 함수 (예: 11 -> 십일, 23 -> 이십삼)
+         * TTS가 "11장"을 "열한 장" 또는 "십일대이" 대신 "십일 장"으로 정확하게 읽도록 처리합니다.
+         */
+        function numberToSinoKorean(num) {
+            const units = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+            const tens = ['', '십', '백', '천'];
+            let n = parseInt(num, 10);
+            if (isNaN(n) || n <= 0) return num;
+            
+            let result = '';
+            let digits = String(n).split('').map(Number);
+            let len = digits.length;
+            
+            for (let i = 0; i < len; i++) {
+                let d = digits[i];
+                let pos = len - 1 - i;
+                if (d !== 0) {
+                    if (d === 1 && pos > 0) {
+                        result += tens[pos];
+                    } else {
+                        result += units[d] + tens[pos];
+                    }
+                }
+            }
+            return result;
+        }
+
+        /**
+         * 한국어 음성 합성(TTS)이 성경 장절 및 시편 구절을 정확하게 읽도록 텍스트 변환하는 함수
+         * - 일반 성경: "11:2" -> "십일장 이절" ("열한 장", "십일대이" 방지)
+         * - 시편: "시편 23:1" -> "시편 이십삼편 일절"
+         */
+        function formatTextForSpeech(text) {
+            if (!text) return '';
+            let formatted = text;
+
+            // 1. 시편(Psalms) 장절 음성 낭독 변환
+            // 시편 범위 예시: 시편 23:1-4 -> 시편 이십삼편 일절에서 사절
+            formatted = formatted.replace(/시편\s*(\d+)[:장]\s*(\d+)\s*[-~]\s*(\d+)(?:절)?/g, (_, ch, v1, v2) => {
+                return `시편 ${numberToSinoKorean(ch)}편 ${numberToSinoKorean(v1)}절에서 ${numberToSinoKorean(v2)}절`;
+            });
+            // 시편 단일 절 예시: 시편 23:1 -> 시편 이십삼편 일절
+            formatted = formatted.replace(/시편\s*(\d+)[:장]\s*(\d+)(?:절)?/g, (_, ch, v) => {
+                return `시편 ${numberToSinoKorean(ch)}편 ${numberToSinoKorean(v)}절`;
+            });
+
+            // 2. 일반 성경 장절 음성 낭독 변환 (예: 11:2 -> 십일장 이절, 3:16 -> 삼장 십육절)
+            // 범위 예시: 요한복음 3:16-17 -> 요한복음 삼장 십육절에서 십칠절
+            formatted = formatted.replace(/(\d+)\s*:\s*(\d+)\s*[-~]\s*(\d+)/g, (_, ch, v1, v2) => {
+                return `${numberToSinoKorean(ch)}장 ${numberToSinoKorean(v1)}절에서 ${numberToSinoKorean(v2)}절`;
+            });
+            // 단일 절 예시: 요한복음 11:2 -> 요한복음 십일장 이절
+            formatted = formatted.replace(/(\d+)\s*:\s*(\d+)/g, (_, ch, v) => {
+                return `${numberToSinoKorean(ch)}장 ${numberToSinoKorean(v)}절`;
+            });
+
+            return formatted;
+        }
+
         async function requestRecommendation() {
             const situationInput = document.getElementById('situationInput');
             const situation = situationInput ? situationInput.value.trim() : '';
@@ -249,6 +322,13 @@
             if (!situation) {
                 showToast("오늘의 상황이나 고민을 작성해 주세요.", "warning");
                 return;
+            }
+
+            // Stop any ongoing audio playback
+            if (isAudioPlaying) {
+                window.speechSynthesis.cancel();
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
             }
 
             const loadingCard = document.getElementById('loadingCard');
@@ -269,7 +349,7 @@
 
                 const resData = await response.json();
 
-                // 1. 서버 에러 응답 처리 (객체 형태 에러 분기 개선)
+                // 1. 서버 에러 응답 처리
                 if (!response.ok || resData.error) {
                     let errorMessage = "서버 응답 오류";
                     if (typeof resData.error === 'string') {
@@ -339,21 +419,42 @@
                 return;
             }
 
-            const textToRead = `${currentRecommendation.title}. 본문 말씀. ${currentRecommendation.verse_reference}. ${currentRecommendation.verse_text}. 말씀 묵상. ${currentRecommendation.reflection_body}`;
-            audioUtterance = new SpeechSynthesisUtterance(textToRead);
-            audioUtterance.lang = 'ko-KR';
+            // 원본 낭독 텍스트 생성
+            const rawSpeechText = `${currentRecommendation.title}. 본문 말씀. ${currentRecommendation.verse_reference}. ${currentRecommendation.verse_text}. 말씀 묵상. ${currentRecommendation.reflection_body}`;
+            
+            // TTS용 음성 정제 (2:1 -> 2장 1절 / 시편 2:1 -> 시편 2편 1절)
+            const speechFormattedText = formatTextForSpeech(rawSpeechText);
 
-            audioUtterance.onend = () => updateAudioButtonUI(false);
-            audioUtterance.onerror = () => updateAudioButtonUI(false);
+            audioUtterance = new SpeechSynthesisUtterance(speechFormattedText);
+            audioUtterance.lang = 'ko-KR';
+            audioUtterance.rate = 0.92; // 단정하고 편안한 읽기 속도
+
+            audioUtterance.onend = () => {
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
+            };
+            
+            audioUtterance.onerror = () => {
+                isAudioPlaying = false;
+                updateAudioButtonUI(false);
+                showToast("오디오 낭독 중 오류가 발생했습니다.", "warning");
+            };
 
             isAudioPlaying = true;
             updateAudioButtonUI(true);
+            window.speechSynthesis.cancel(); // 이전 음성 취소 후 실행
             window.speechSynthesis.speak(audioUtterance);
         }
 
         function updateAudioButtonUI(playing) {
             const btnText = document.getElementById('audioBtnText');
+            const icon = document.getElementById('audioIcon');
+            
             if (btnText) btnText.innerText = playing ? "낭독 정지" : "오디오 낭독";
+            if (icon) {
+                icon.setAttribute('data-lucide', playing ? 'square' : 'volume-2');
+                lucide.createIcons();
+            }
         }
 
         function saveHistoryItem(item) {
@@ -388,19 +489,61 @@
             }
 
             emptyEl.classList.add('hidden');
-            listEl.innerHTML = historyData.map(item => `
-                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-1">
-                    <span class="text-[10px] font-semibold text-indigo-600">${item.theme_tag || '#말씀'}</span>
-                    <h4 class="text-sm font-bold text-slate-800">${item.title}</h4>
-                    <p class="text-xs text-slate-500">${item.verse_reference} — "${item.verse_text}"</p>
-                </div>
-            `).join('');
+            listEl.innerHTML = historyData.map(item => {
+                const dateStr = item.date ? new Date(item.date).toLocaleDateString('ko-KR') : '';
+                return `
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">${item.theme_tag || '#말씀'}</span>
+                            <span class="text-[11px] text-slate-400">${dateStr}</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-800">${item.title}</h4>
+                        <p class="text-xs text-amber-700 font-medium">${item.verse_reference}</p>
+                        <blockquote class="text-xs text-slate-600 line-clamp-2 italic bg-slate-50 p-2 rounded border-l-2 border-indigo-400">
+                            "${item.verse_text}"
+                        </blockquote>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearAllHistory() {
+            if (historyData.length === 0) return;
+            localStorage.removeItem('bible_app_history');
+            historyData = [];
+            updateHistoryBadge();
+            renderHistoryList();
+            showToast("보관함이 비워졌습니다.", "info");
         }
 
         function copyVerseToClipboard() {
             if (!currentRecommendation) return;
             const text = `[${currentRecommendation.title}]\n${currentRecommendation.verse_reference}\n"${currentRecommendation.verse_text}"\n\n${currentRecommendation.reflection_body}`;
-            navigator.clipboard.writeText(text).then(() => showToast("복사되었습니다.", "success"));
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast("말씀이 복사되었습니다.", "success"))
+                    .catch(() => fallbackCopyTextToClipboard(text));
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("말씀이 복사되었습니다.", "success");
+            } catch (err) {
+                showToast("복사하기 실패했습니다.", "warning");
+            }
+            document.body.removeChild(textArea);
         }
 
         function showToast(message, type = 'info') {
