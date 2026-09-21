@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <script>
-        // 백엔드 프록시 서버 URL (Cloudflare Worker URL로 수정하세요)
+        // 백엔드 프록시 서버 URL (Cloudflare Worker URL)
         const PROXY_URL = "https://api-key.1s2u3n4w.workers.dev";
 
         tailwind.config = {
@@ -268,9 +268,28 @@
                 });
 
                 const resData = await response.json();
-                if (!response.ok || resData.error) throw new Error(resData.error || "서버 응답 오류");
 
+                // 1. 서버 에러 응답 처리 (객체 형태 에러 분기 개선)
+                if (!response.ok || resData.error) {
+                    let errorMessage = "서버 응답 오류";
+                    if (typeof resData.error === 'string') {
+                        errorMessage = resData.error;
+                    } else if (resData.error && resData.error.message) {
+                        errorMessage = resData.error.message;
+                    } else if (resData.error) {
+                        errorMessage = JSON.stringify(resData.error);
+                    } else if (response.status) {
+                        errorMessage = `HTTP 오류 ${response.status}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                // 2. Gemini AI 응답 데이터 안전하게 파싱
                 const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!rawText) {
+                    throw new Error("AI 응답을 불러오지 못했습니다. 다시 시도해주세요.");
+                }
+
                 const cleanJsonStr = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
                 const data = JSON.parse(cleanJsonStr);
 
@@ -302,9 +321,9 @@
                 showToast("AI 맞춤 말씀을 찾았습니다!", "success");
 
             } catch (err) {
-                console.error("오류 발생:", err);
+                console.error("상세 오류:", err);
                 loadingCard.classList.add('hidden');
-                showToast("말씀 찾는 중 오류가 발생했습니다.", "warning");
+                showToast(`오류: ${err.message}`, "warning");
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
@@ -396,7 +415,7 @@
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+            }, 3500);
         }
     </script>
 </body>
