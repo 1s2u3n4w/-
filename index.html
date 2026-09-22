@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <script>
-        // 백엔드 프록시 서버 URL (Cloudflare Worker URL)
+        // Cloudflare Worker 프록시 URL
         const PROXY_URL = "https://api-key.1s2u3n4w.workers.dev";
 
         tailwind.config = {
@@ -92,20 +92,36 @@
                     </p>
                 </div>
 
+                <!-- 예시 버튼 목록 (클릭 시 자동 실행) -->
                 <div>
-                    <p class="text-xs text-slate-400 font-medium mb-1.5 flex items-center gap-1">
+                    <p class="text-xs text-slate-400 font-medium mb-2 flex items-center gap-1">
                         <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i>
-                        <span>자주 쓰는 고민 예시:</span>
+                        <span>자주 쓰는 고민 예시 (클릭 시 바로 말씀 찾기 실행):</span>
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="setPromptInput('새로운 도전과 업무 부담감으로 불안하고 마음이 짓눌립니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                        <button onclick="selectExample('새로운 도전과 업무 부담감으로 불안하고 마음이 짓눌립니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
                             💼 업무 부담과 불안
                         </button>
-                        <button onclick="setPromptInput('소중한 사람과의 오해로 마음이 아프고 관계 회복에 지혜가 필요합니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                        <button onclick="selectExample('소중한 사람과의 오해로 마음이 아프고 관계 회복에 지혜가 필요합니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
                             💔 대인 관계와 오해
                         </button>
-                        <button onclick="setPromptInput('지친 일상 속에서 진정한 마음의 평안과 안식을 얻고 싶습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                        <button onclick="selectExample('지친 일상 속에서 진정한 마음의 평안과 안식을 얻고 싶습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
                             🌿 마음의 지침과 안식
+                        </button>
+                        <button onclick="selectExample('진로와 미래에 대한 불확실성 때문에 두렵고 방향을 잡기 어렵습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            🚀 진로와 미래 두려움
+                        </button>
+                        <button onclick="selectExample('아무도 나를 이해해 주지 않는 것 같아 쓸쓸하고 외로운 마음이 듭니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            🌧️ 외로움과 고독감
+                        </button>
+                        <button onclick="selectExample('경제적인 어려움과 재정적 염려로 자꾸 마음이 위축됩니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            💸 재정과 경제적 염려
+                        </button>
+                        <button onclick="selectExample('반복되는 일상과 피로로 인해 영적으로도, 육체적으로도 번아웃이 왔습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            🥀 피로와 번아웃
+                        </button>
+                        <button onclick="selectExample('오늘 하루 주신 은혜에 감사하며 기쁨의 찬양 기도를 드리고 싶습니다.')" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 text-slate-600 transition text-left">
+                            🙏 감사와 기쁨
                         </button>
                     </div>
                 </div>
@@ -132,7 +148,7 @@
                 </div>
                 <div>
                     <h3 class="text-base font-bold text-slate-800">AI가 말씀을 적어내려가고 있습니다</h3>
-                    <p class="text-xs text-slate-500 mt-1">상황에 꼭 맞는 말씀을 찾는 중...</p>
+                    <p class="text-xs text-slate-500 mt-1">상황에 꼭 맞는 다채로운 말씀을 찾는 중...</p>
                 </div>
             </div>
 
@@ -215,10 +231,14 @@
             lucide.createIcons();
             loadHistoryFromStorage();
             renderHistoryList();
+            
+            // 브라우저 음성 목록 미리 로드
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
         };
 
         function switchTab(tab) {
-            // Stop TTS reading if user switches tab
             if (isAudioPlaying) {
                 window.speechSynthesis.cancel();
                 isAudioPlaying = false;
@@ -238,6 +258,9 @@
                 viewHistory.classList.add('hidden');
                 tabBtnRecommend.className = activeStyle;
                 tabBtnHistory.className = inactiveStyle;
+                
+                // 보관함 접속 후 메인으로 재진입 시 이전 텍스트 및 결과 화면 리셋
+                resetInputAndResults();
             } else {
                 viewRecommend.classList.add('hidden');
                 viewHistory.classList.remove('hidden');
@@ -247,70 +270,76 @@
             }
         }
 
-        function setPromptInput(text) {
+        // 입력 폼 및 결과 카드 리셋 함수
+        function resetInputAndResults() {
+            const input = document.getElementById('situationInput');
+            if (input) input.value = '';
+            
+            const resultCard = document.getElementById('resultCard');
+            if (resultCard) resultCard.classList.add('hidden');
+            
+            currentRecommendation = null;
+        }
+
+        // 예시 클릭 시 바로 실행
+        function selectExample(text) {
             const input = document.getElementById('situationInput');
             if (input) {
                 input.value = text;
-                input.focus();
             }
+            requestRecommendation();
         }
 
-        /**
-         * 숫자를 한글 한자어 수사로 변환하는 함수 (예: 11 -> 십일, 23 -> 이십삼)
-         * TTS가 "11장"을 "열한 장" 또는 "십일대이" 대신 "십일 장"으로 정확하게 읽도록 처리합니다.
-         */
-        function numberToSinoKorean(num) {
-            const units = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
-            const tens = ['', '십', '백', '천'];
-            let n = parseInt(num, 10);
-            if (isNaN(n) || n <= 0) return num;
+        // 숫자를 한글 한자어 수사로 변환하는 보조 함수 (예: 11 -> 십일, 2 -> 이)
+        function numberToSinoKorean(numStr) {
+            const num = parseInt(numStr, 10);
+            if (isNaN(num)) return numStr;
+            if (num === 0) return '영';
+
+            const units = ['', '십', '백', '천'];
+            const digits = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
             
             let result = '';
-            let digits = String(n).split('').map(Number);
-            let len = digits.length;
-            
+            let str = num.toString();
+            let len = str.length;
+
             for (let i = 0; i < len; i++) {
-                let d = digits[i];
-                let pos = len - 1 - i;
+                let d = parseInt(str[i], 10);
+                let unitIdx = len - 1 - i;
                 if (d !== 0) {
-                    if (d === 1 && pos > 0) {
-                        result += tens[pos];
+                    if (d === 1 && unitIdx > 0) {
+                        result += units[unitIdx];
                     } else {
-                        result += units[d] + tens[pos];
+                        result += digits[d] + units[unitIdx];
                     }
                 }
             }
             return result;
         }
 
-        /**
-         * 한국어 음성 합성(TTS)이 성경 장절 및 시편 구절을 정확하게 읽도록 텍스트 변환하는 함수
-         * - 일반 성경: "11:2" -> "십일장 이절" ("열한 장", "십일대이" 방지)
-         * - 시편: "시편 23:1" -> "시편 이십삼편 일절"
-         */
+        // 음성합성(TTS)을 위해 성경 장:절을 '십일장 이절'로 한글 변환
         function formatTextForSpeech(text) {
             if (!text) return '';
             let formatted = text;
 
-            // 1. 시편(Psalms) 장절 음성 낭독 변환
-            // 시편 범위 예시: 시편 23:1-4 -> 시편 이십삼편 일절에서 사절
-            formatted = formatted.replace(/시편\s*(\d+)[:장]\s*(\d+)\s*[-~]\s*(\d+)(?:절)?/g, (_, ch, v1, v2) => {
-                return `시편 ${numberToSinoKorean(ch)}편 ${numberToSinoKorean(v1)}절에서 ${numberToSinoKorean(v2)}절`;
+            // 1. 시편 예시: 시편 23:1-4 -> 시편 이십삼편 일절에서 사절
+            formatted = formatted.replace(/시편\s*(\d+)[:장]\s*(\d+)\s*[-~]\s*(\d+)(?:절)?/g, (m, p1, p2, p3) => {
+                return `시편 ${numberToSinoKorean(p1)}편 ${numberToSinoKorean(p2)}절에서 ${numberToSinoKorean(p3)}절`;
             });
-            // 시편 단일 절 예시: 시편 23:1 -> 시편 이십삼편 일절
-            formatted = formatted.replace(/시편\s*(\d+)[:장]\s*(\d+)(?:절)?/g, (_, ch, v) => {
-                return `시편 ${numberToSinoKorean(ch)}편 ${numberToSinoKorean(v)}절`;
+            formatted = formatted.replace(/시편\s*(\d+)[:장]\s*(\d+)(?:절)?/g, (m, p1, p2) => {
+                return `시편 ${numberToSinoKorean(p1)}편 ${numberToSinoKorean(p2)}절`;
             });
 
-            // 2. 일반 성경 장절 음성 낭독 변환 (예: 11:2 -> 십일장 이절, 3:16 -> 삼장 십육절)
-            // 범위 예시: 요한복음 3:16-17 -> 요한복음 삼장 십육절에서 십칠절
-            formatted = formatted.replace(/(\d+)\s*:\s*(\d+)\s*[-~]\s*(\d+)/g, (_, ch, v1, v2) => {
-                return `${numberToSinoKorean(ch)}장 ${numberToSinoKorean(v1)}절에서 ${numberToSinoKorean(v2)}절`;
+            // 2. 일반 성경 예시: 11:2 -> 십일장 이절 / 11:2-4 -> 십일장 이절에서 사절
+            formatted = formatted.replace(/(\d+)\s*:\s*(\d+)\s*[-~]\s*(\d+)/g, (m, p1, p2, p3) => {
+                return `${numberToSinoKorean(p1)}장 ${numberToSinoKorean(p2)}절에서 ${numberToSinoKorean(p3)}절`;
             });
-            // 단일 절 예시: 요한복음 11:2 -> 요한복음 십일장 이절
-            formatted = formatted.replace(/(\d+)\s*:\s*(\d+)/g, (_, ch, v) => {
-                return `${numberToSinoKorean(ch)}장 ${numberToSinoKorean(v)}절`;
+            formatted = formatted.replace(/(\d+)\s*:\s*(\d+)/g, (m, p1, p2) => {
+                return `${numberToSinoKorean(p1)}장 ${numberToSinoKorean(p2)}절`;
             });
+
+            // 읽기에 방해되는 불필요 특수문자 제거
+            formatted = formatted.replace(/[#*_\-~"`]/g, ' ');
 
             return formatted;
         }
@@ -324,7 +353,6 @@
                 return;
             }
 
-            // Stop any ongoing audio playback
             if (isAudioPlaying) {
                 window.speechSynthesis.cancel();
                 isAudioPlaying = false;
@@ -340,7 +368,6 @@
             if (submitBtn) submitBtn.disabled = true;
 
             try {
-                // 프록시 서버로 요청 전달
                 const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -349,22 +376,16 @@
 
                 const resData = await response.json();
 
-                // 1. 서버 에러 응답 처리
                 if (!response.ok || resData.error) {
                     let errorMessage = "서버 응답 오류";
                     if (typeof resData.error === 'string') {
                         errorMessage = resData.error;
                     } else if (resData.error && resData.error.message) {
                         errorMessage = resData.error.message;
-                    } else if (resData.error) {
-                        errorMessage = JSON.stringify(resData.error);
-                    } else if (response.status) {
-                        errorMessage = `HTTP 오류 ${response.status}`;
                     }
                     throw new Error(errorMessage);
                 }
 
-                // 2. Gemini AI 응답 데이터 안전하게 파싱
                 const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!rawText) {
                     throw new Error("AI 응답을 불러오지 못했습니다. 다시 시도해주세요.");
@@ -409,8 +430,14 @@
             }
         }
 
+        // 안정성이 강화된 TTS 오디오 낭독 함수
         function toggleAudioReading() {
             if (!currentRecommendation) return;
+
+            if (!('speechSynthesis' in window)) {
+                showToast("현재 브라우저는 음성 낭독 기능을 지원하지 않습니다.", "warning");
+                return;
+            }
 
             if (isAudioPlaying) {
                 window.speechSynthesis.cancel();
@@ -419,30 +446,42 @@
                 return;
             }
 
-            // 원본 낭독 텍스트 생성
+            window.speechSynthesis.cancel(); // 이전 음성 재생 캔슬
+
             const rawSpeechText = `${currentRecommendation.title}. 본문 말씀. ${currentRecommendation.verse_reference}. ${currentRecommendation.verse_text}. 말씀 묵상. ${currentRecommendation.reflection_body}`;
-            
-            // TTS용 음성 정제 (2:1 -> 2장 1절 / 시편 2:1 -> 시편 2편 1절)
             const speechFormattedText = formatTextForSpeech(rawSpeechText);
 
             audioUtterance = new SpeechSynthesisUtterance(speechFormattedText);
             audioUtterance.lang = 'ko-KR';
-            audioUtterance.rate = 0.92; // 단정하고 편안한 읽기 속도
+            audioUtterance.rate = 0.92;
+
+            // 한국어 음성 지정 (지원 디바이스에 맞게 선택)
+            const voices = window.speechSynthesis.getVoices();
+            const koVoice = voices.find(v => v.lang.includes('ko') || v.lang.includes('KO'));
+            if (koVoice) {
+                audioUtterance.voice = koVoice;
+            }
 
             audioUtterance.onend = () => {
                 isAudioPlaying = false;
                 updateAudioButtonUI(false);
             };
-            
-            audioUtterance.onerror = () => {
+
+            audioUtterance.onerror = (e) => {
+                console.error("TTS 에러 발생:", e);
                 isAudioPlaying = false;
                 updateAudioButtonUI(false);
-                showToast("오디오 낭독 중 오류가 발생했습니다.", "warning");
+                showToast("오디오 낭독 시작 실패. 모바일 브라우저 음성 설정을 확인해 주세요.", "warning");
             };
 
             isAudioPlaying = true;
             updateAudioButtonUI(true);
-            window.speechSynthesis.cancel(); // 이전 음성 취소 후 실행
+
+            // 모바일 Chrome/Safari 버그 방지용 resume
+            if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+            }
+
             window.speechSynthesis.speak(audioUtterance);
         }
 
