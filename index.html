@@ -432,57 +432,76 @@
 
         // 안정성이 강화된 TTS 오디오 낭독 함수
         function toggleAudioReading() {
-            if (!currentRecommendation) return;
+            // 전역 변수로 선언하여 가비지 컬렉션 방지
+window.currentUtterance = null;
 
-            if (!('speechSynthesis' in window)) {
-                showToast("현재 브라우저는 음성 낭독 기능을 지원하지 않습니다.", "warning");
-                return;
-            }
+function toggleAudioReading() {
+    if (!currentRecommendation) return;
 
-            if (isAudioPlaying) {
-                window.speechSynthesis.cancel();
-                isAudioPlaying = false;
-                updateAudioButtonUI(false);
-                return;
-            }
+    if (!('speechSynthesis' in window)) {
+        showToast("현재 브라우저는 오디오 낭독을 지원하지 않습니다.", "warning");
+        return;
+    }
 
-            window.speechSynthesis.cancel(); // 이전 음성 재생 캔슬
+    // 이미 재생 중이면 정지
+    if (isAudioPlaying) {
+        window.speechSynthesis.cancel();
+        isAudioPlaying = false;
+        updateAudioButtonUI(false);
+        return;
+    }
 
-            const rawSpeechText = `${currentRecommendation.title}. 본문 말씀. ${currentRecommendation.verse_reference}. ${currentRecommendation.verse_text}. 말씀 묵상. ${currentRecommendation.reflection_body}`;
-            const speechFormattedText = formatTextForSpeech(rawSpeechText);
+    // 이전 대기열 모두 초기화
+    window.speechSynthesis.cancel();
 
-            audioUtterance = new SpeechSynthesisUtterance(speechFormattedText);
-            audioUtterance.lang = 'ko-KR';
-            audioUtterance.rate = 0.92;
+    // 낭독할 텍스트 조합 및 정제
+    const rawSpeechText = `${currentRecommendation.title}. 본문 말씀. ${currentRecommendation.verse_reference}. ${currentRecommendation.verse_text}. 말씀 묵상. ${currentRecommendation.reflection_body}`;
+    const speechFormattedText = formatTextForSpeech(rawSpeechText);
 
-            // 한국어 음성 지정 (지원 디바이스에 맞게 선택)
-            const voices = window.speechSynthesis.getVoices();
-            const koVoice = voices.find(v => v.lang.includes('ko') || v.lang.includes('KO'));
-            if (koVoice) {
-                audioUtterance.voice = koVoice;
-            }
+    // 1. window 객체에 직접 할당하여 가비지 컬렉터 삭제 방지
+    window.currentUtterance = new SpeechSynthesisUtterance(speechFormattedText);
+    window.currentUtterance.lang = 'ko-KR';
+    window.currentUtterance.rate = 0.92;
 
-            audioUtterance.onend = () => {
-                isAudioPlaying = false;
-                updateAudioButtonUI(false);
-            };
+    // 2. 한국어 음성 지정 (비동기 로딩 대응)
+    const setKoreanVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const koVoice = voices.find(v => v.lang.includes('ko') || v.lang.includes('KO'));
+        if (koVoice) {
+            window.currentUtterance.voice = koVoice;
+        }
+    };
 
-            audioUtterance.onerror = (e) => {
-                console.error("TTS 에러 발생:", e);
-                isAudioPlaying = false;
-                updateAudioButtonUI(false);
-                showToast("오디오 낭독 시작 실패. 모바일 브라우저 음성 설정을 확인해 주세요.", "warning");
-            };
+    if (window.speechSynthesis.getVoices().length > 0) {
+        setKoreanVoice();
+    } else {
+        window.speechSynthesis.onvoiceschanged = setKoreanVoice;
+    }
 
-            isAudioPlaying = true;
-            updateAudioButtonUI(true);
+    // 재생 완료 이벤트
+    window.currentUtterance.onend = () => {
+        isAudioPlaying = false;
+        updateAudioButtonUI(false);
+    };
 
-            // 모바일 Chrome/Safari 버그 방지용 resume
-            if (window.speechSynthesis.paused) {
-                window.speechSynthesis.resume();
-            }
+    // 재생 에러 이벤트
+    window.currentUtterance.onerror = (e) => {
+        console.error("TTS 오류 발생:", e);
+        isAudioPlaying = false;
+        updateAudioButtonUI(false);
+        showToast("오디오 낭독 중 오류가 발생했습니다.", "warning");
+    };
 
-            window.speechSynthesis.speak(audioUtterance);
+    isAudioPlaying = true;
+    updateAudioButtonUI(true);
+
+    // 3. 브라우저 락 상태 해제 후 재생
+    if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+    }
+
+    window.speechSynthesis.speak(window.currentUtterance);
+}
         }
 
         function updateAudioButtonUI(playing) {
